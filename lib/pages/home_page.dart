@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:flutter_trip/dao/home_dao.dart';
 
 const double APPBAR_SCROLL_OFFSET = 100;
 
@@ -16,6 +19,15 @@ class _HomePageState extends State<HomePage> {
   ];
 
   double appBarAlpha = 0;
+
+  String showInfo = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +55,7 @@ class _HomePageState extends State<HomePage> {
                     )),
                 Container(
                   height: 800,
+                  child: new Text(showInfo),
                 )
               ]),
             ),
@@ -83,5 +96,25 @@ class _HomePageState extends State<HomePage> {
     if (notification is ScrollUpdateNotification && notification.depth == 0) {
       _onScroll(notification.metrics.pixels);
     }
+  }
+
+  Future<Null> _getData() async {
+    // HomeDao.fetch()
+    //     .then((value) => {
+    //           setState(() {
+    //             showInfo = jsonEncode(value);
+    //           })
+    //         })
+    //     .catchError((onError) => {});
+    try{
+      var response = await HomeDao.fetch();
+      setState(() {
+        showInfo = jsonEncode(response.toString());
+      });
+    }catch(e) {
+      print('fanjingwei' + e.toString());
+
+    }
+
   }
 }
