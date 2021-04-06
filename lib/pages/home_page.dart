@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_trip/dao/home_dao.dart';
+import 'package:flutter_trip/model/common_model.dart';
+import 'package:flutter_trip/model/home_model.dart';
+import 'package:flutter_trip/widget/grid_nav.dart';
 
 const double APPBAR_SCROLL_OFFSET = 100;
 
@@ -12,15 +15,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List _imageUrls = [
-    'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.cdn.huabbao.com%2Fcase%2F20210220%2F6030f9b97e741.png%21th_1000&refer=http%3A%2F%2Fimg.cdn.huabbao.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1619966601&t=aa5f4b74d59f89ceade98b3945295839',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3417687404,3768940510&fm=26&gp=0.jpg',
-    'https://wx2.sinaimg.cn/mw690/b9af179fly1go871lzl3lj20u016t7ey.jpg'
-  ];
+  List _imageUrls = [];
 
   double appBarAlpha = 0;
 
   String showInfo = '';
+  List<CommonModel> gridNavList = [];
 
   @override
   void initState() {
@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color( 0xFFF2F2F2),
       body: Stack(
         children: [
           MediaQuery.removePadding(
@@ -53,6 +54,8 @@ class _HomePageState extends State<HomePage> {
                       },
                       pagination: SwiperPagination(),
                     )),
+                Padding(padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
+                child: GridNav(localNavList: gridNavList),),
                 Container(
                   height: 800,
                   child: new Text(showInfo),
@@ -60,6 +63,7 @@ class _HomePageState extends State<HomePage> {
               ]),
             ),
           ),
+
           Opacity(
             opacity: appBarAlpha,
             child: Container(
@@ -73,7 +77,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          )
+          ),
+
         ],
       ),
     );
@@ -99,17 +104,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<Null> _getData() async {
-    // HomeDao.fetch()
-    //     .then((value) => {
-    //           setState(() {
-    //             showInfo = jsonEncode(value);
-    //           })
-    //         })
-    //     .catchError((onError) => {});
+
     try{
-      var response = await HomeDao.fetch();
+      HomeModel homeModel = await HomeDao.fetch();
       setState(() {
-        showInfo = jsonEncode(response.toString());
+        showInfo = jsonEncode(homeModel.configModel.searchUrl);
+        for(int i=0;i<homeModel.bannerList.length;i++) {
+          CommonModel commonModel = homeModel.bannerList[i];
+          _imageUrls.add(commonModel.icon);
+        }
+        gridNavList = homeModel.localNavList;
+
       });
     }catch(e) {
       print('fanjingwei' + e.toString());
