@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -17,13 +16,18 @@ class WebView extends StatefulWidget {
       this.statusBarColor,
       this.title,
       this.hideAppBar,
-      this.backForbid});
+      this.backForbid = false});
 
   @override
   _WebViewState createState() => _WebViewState();
 }
 
 class _WebViewState extends State<WebView> {
+  static const CATCH_URLS = [
+    'm.ctrip.com/',
+    'm.ctrip.com/html5/',
+    'm.ctrip.com/html5'
+  ];
   final webviewReference = FlutterWebviewPlugin();
   StreamSubscription<String> _onUrlChanged;
   StreamSubscription<WebViewStateChanged> _onStateChanged;
@@ -36,15 +40,35 @@ class _WebViewState extends State<WebView> {
     webviewReference.close();
     _onUrlChanged = webviewReference.onUrlChanged.listen((event) {});
     //监听导航发生变化
-    _onStateChanged = webviewReference.onStateChanged.listen((event) {
+    _onStateChanged =
+        webviewReference.onStateChanged.listen((WebViewStateChanged event) {
+
       switch (event.type) {
         case WebViewState.startLoad:
+          if (_isToMain(event.url)) {
+            if (widget.backForbid) {
+              webviewReference.launch(widget.url);
+            } else {
+              Navigator.pop(context);
+            }
+          }
           break;
         default:
           break;
       }
     });
     _onHttpError = webviewReference.onHttpError.listen((event) {});
+  }
+
+  bool _isToMain(String url) {
+    bool isToMain = false;
+    for (final value in CATCH_URLS) {
+      if (url?.endsWith(value) ?? false) {
+        isToMain = true;
+        break;
+      }
+    }
+    return isToMain;
   }
 
   @override
