@@ -7,8 +7,10 @@ import 'package:flutter_trip/dao/home_dao.dart';
 import 'package:flutter_trip/model/common_model.dart';
 import 'package:flutter_trip/model/grid_nav_model.dart';
 import 'package:flutter_trip/model/home_model.dart';
+import 'package:flutter_trip/model/sale_box_model.dart';
 import 'package:flutter_trip/widget/card_nav.dart';
 import 'package:flutter_trip/widget/grid_nav.dart';
+import 'package:flutter_trip/widget/sales_box.dart';
 import 'package:flutter_trip/widget/sub_nav.dart';
 
 const double APPBAR_SCROLL_OFFSET = 100;
@@ -27,11 +29,12 @@ class _HomePageState extends State<HomePage> {
   List<CommonModel> gridNavList = [];
   GridNavModel cardNavList;
   List<CommonModel> sublNavList;
+  SaleBoxModel salesBox;
 
   @override
   void initState() {
     super.initState();
-    _getData();
+    _handleRefresh();
   }
 
   @override
@@ -43,38 +46,43 @@ class _HomePageState extends State<HomePage> {
           MediaQuery.removePadding(
             removeTop: true,
             context: context,
-            child: NotificationListener(
-              onNotification: _onScrollNotificationListner,
-              child: ListView(children: [
-                Container(
-                    height: 160,
-                    child: Swiper(
-                      itemCount: _imageUrls.length,
-                      autoplay: true,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Image.network(
-                          _imageUrls[index],
-                          fit: BoxFit.fill,
-                        );
-                      },
-                      pagination: SwiperPagination(),
-                    )),
-                Padding(
-                    padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
-                    child: GridNav(localNavList: gridNavList)),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                  child: CardNav(gridNavModel: cardNavList),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                  child: SubNav(sublNavList: sublNavList),
-                ),
-                Container(
-                  height: 800,
-                  child: new Text(showInfo),
-                )
-              ]),
+            child: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: NotificationListener(
+                onNotification: _onScrollNotificationListner,
+                child: ListView(children: [
+                  Container(
+                      height: 160,
+                      child: Swiper(
+                        itemCount: _imageUrls.length,
+                        autoplay: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Image.network(
+                            _imageUrls[index],
+                            fit: BoxFit.fill,
+                          );
+                        },
+                        pagination: SwiperPagination(),
+                      )),
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
+                      child: GridNav(localNavList: gridNavList)),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+                    child: CardNav(gridNavModel: cardNavList),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+                    child: SubNav(sublNavList: sublNavList),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+                    child: SalesBox(
+                      salesBox: salesBox,
+                    ),
+                  ),
+                ]),
+              ),
             ),
           ),
           Opacity(
@@ -115,21 +123,23 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<Null> _getData() async {
+  Future<Null> _handleRefresh() async {
     try {
       HomeModel homeModel = await HomeDao.fetch();
+      List<String> _list =[];
       setState(() {
         showInfo = jsonEncode(homeModel.configModel.searchUrl);
         for (int i = 0; i < homeModel.bannerList.length; i++) {
           CommonModel commonModel = homeModel.bannerList[i];
-          _imageUrls.add(commonModel.icon);
+          _list.add(commonModel.icon);
         }
+        _imageUrls = _list;
         print(homeModel.gridNav);
         gridNavList = homeModel.localNavList;
 
         cardNavList = homeModel.gridNav;
         sublNavList = homeModel.subNavList;
-        print(homeModel.gridNav);
+        salesBox = homeModel.salesBox;
       });
     } catch (e) {
       print('fanjingwei' + e.toString());
