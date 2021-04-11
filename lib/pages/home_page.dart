@@ -1,11 +1,15 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_trip/dao/home_dao.dart';
 import 'package:flutter_trip/model/common_model.dart';
+import 'package:flutter_trip/model/grid_nav_model.dart';
 import 'package:flutter_trip/model/home_model.dart';
+import 'package:flutter_trip/widget/card_nav.dart';
 import 'package:flutter_trip/widget/grid_nav.dart';
+import 'package:flutter_trip/widget/sub_nav.dart';
 
 const double APPBAR_SCROLL_OFFSET = 100;
 
@@ -21,10 +25,11 @@ class _HomePageState extends State<HomePage> {
 
   String showInfo = '';
   List<CommonModel> gridNavList = [];
+  GridNavModel cardNavList;
+  List<CommonModel> sublNavList;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _getData();
   }
@@ -32,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color( 0xFFF2F2F2),
+      backgroundColor: Color(0xFFF2F2F2),
       body: Stack(
         children: [
           MediaQuery.removePadding(
@@ -54,8 +59,17 @@ class _HomePageState extends State<HomePage> {
                       },
                       pagination: SwiperPagination(),
                     )),
-                Padding(padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
-                child: GridNav(localNavList: gridNavList),),
+                Padding(
+                    padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
+                    child: GridNav(localNavList: gridNavList)),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+                  child: CardNav(gridNavModel: cardNavList),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+                  child: SubNav(sublNavList: sublNavList),
+                ),
                 Container(
                   height: 800,
                   child: new Text(showInfo),
@@ -63,7 +77,6 @@ class _HomePageState extends State<HomePage> {
               ]),
             ),
           ),
-
           Opacity(
             opacity: appBarAlpha,
             child: Container(
@@ -78,7 +91,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -104,22 +116,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<Null> _getData() async {
-
-    try{
+    try {
       HomeModel homeModel = await HomeDao.fetch();
       setState(() {
         showInfo = jsonEncode(homeModel.configModel.searchUrl);
-        for(int i=0;i<homeModel.bannerList.length;i++) {
+        for (int i = 0; i < homeModel.bannerList.length; i++) {
           CommonModel commonModel = homeModel.bannerList[i];
           _imageUrls.add(commonModel.icon);
         }
+        print(homeModel.gridNav);
         gridNavList = homeModel.localNavList;
 
+        cardNavList = homeModel.gridNav;
+        sublNavList = homeModel.subNavList;
+        print(homeModel.gridNav);
       });
-    }catch(e) {
+    } catch (e) {
       print('fanjingwei' + e.toString());
-
     }
-
   }
 }
