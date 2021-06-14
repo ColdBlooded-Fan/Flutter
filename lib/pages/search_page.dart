@@ -1,4 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_trip/plugin/MessageManager.dart';
+
+
+
+
 
 class SearchPage extends StatefulWidget {
   @override
@@ -9,7 +16,21 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('搜索'),
+      child: GestureDetector(
+        child: Text("HELLO"),
+
+        onTap: (){
+          this._Click();
+        },
+      ),
     );
+  }
+
+  _Click() {
+    print("click this");
+    const object = {
+      "message":"this is a flutter data"
+    };
+    MessageManager.openNewNativePage(object);
   }
 }
