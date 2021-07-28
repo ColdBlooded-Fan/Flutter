@@ -11,9 +11,11 @@ import 'package:flutter_trip/model/sale_box_model.dart';
 import 'package:flutter_trip/widget/card_nav.dart';
 import 'package:flutter_trip/widget/grid_nav.dart';
 import 'package:flutter_trip/widget/sales_box.dart';
+import 'package:flutter_trip/widget/seach_bar.dart';
 import 'package:flutter_trip/widget/sub_nav.dart';
 
 const double APPBAR_SCROLL_OFFSET = 100;
+const SEARCH_BAR_DEFAULT_TEXT = "网红打卡经典 酒店 美食";
 
 class HomePage extends StatefulWidget {
   @override
@@ -50,59 +52,94 @@ class _HomePageState extends State<HomePage> {
               onRefresh: _handleRefresh,
               child: NotificationListener(
                 onNotification: _onScrollNotificationListner,
-                child: ListView(children: [
-                  Container(
-                      height: 160,
-                      child: Swiper(
-                        itemCount: _imageUrls.length,
-                        autoplay: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Image.network(
-                            _imageUrls[index],
-                            fit: BoxFit.fill,
-                          );
-                        },
-                        pagination: SwiperPagination(),
-                      )),
-                  Padding(
-                      padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
-                      child: GridNav(localNavList: gridNavList)),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                    child: CardNav(gridNavModel: cardNavList),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                    child: SubNav(sublNavList: sublNavList),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                    child: SalesBox(
-                      salesBox: salesBox,
-                    ),
-                  ),
-                ]),
+                child: _listView,
               ),
             ),
           ),
-          Opacity(
-            opacity: appBarAlpha,
-            child: Container(
-              height: 80,
-              decoration: BoxDecoration(color: Colors.white),
-              padding: EdgeInsets.only(top: 8),
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text('首页'),
-                ),
-              ),
-            ),
-          ),
+          _appBar,
         ],
       ),
     );
   }
+
+  Widget get _listView {
+    return ListView(
+        children: [
+          Container(
+              height: 160,
+              child: Swiper(
+                itemCount: _imageUrls.length,
+                autoplay: true,
+                itemBuilder: (BuildContext context, int index) {
+                  return Image.network(
+                    _imageUrls[index],
+                    fit: BoxFit.fill,
+                  );
+                },
+                pagination: SwiperPagination(),
+              )),
+          Padding(
+              padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
+              child: GridNav(localNavList: gridNavList)),
+          Padding(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+            child: CardNav(gridNavModel: cardNavList),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+            child: SubNav(sublNavList: sublNavList),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+            child: SalesBox(
+              salesBox: salesBox,
+            ),
+          ),
+        ]);
+  }
+
+  Widget get _appBar {
+    return Column(
+      children: <Widget>[
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              //AppBar渐变遮罩背景
+              colors: [Color(0x66000000), Colors.transparent],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+            height: 80.0,
+            decoration: BoxDecoration(
+              color: Color.fromARGB((appBarAlpha * 255).toInt(), 255, 255, 255),
+            ),
+            child: SearchBar(
+              searchBarType: appBarAlpha > 0.2
+                  ? SearchBarType.homeLight
+                  : SearchBarType.home,
+              inputBoxClick: _jumpToSearch,
+              speakClick: _jumpToSpeak,
+              defaultText: SEARCH_BAR_DEFAULT_TEXT,
+              leftButtonClick: () {},
+            ),
+          ),
+        ),
+        Container(
+            height: appBarAlpha > 0.2 ? 0.5 : 0,
+            decoration: BoxDecoration(
+                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 0.5)]))
+      ],
+    );
+  }
+
+  _jumpToSearch() {}
+
+  _jumpToSpeak() {}
+
+  _onTextChanged(tetx) {}
 
   void _onScroll(double offset) {
     double alpha = offset / APPBAR_SCROLL_OFFSET;
@@ -126,7 +163,7 @@ class _HomePageState extends State<HomePage> {
   Future<Null> _handleRefresh() async {
     try {
       HomeModel homeModel = await HomeDao.fetch();
-      List<String> _list =[];
+      List<String> _list = [];
       setState(() {
         showInfo = jsonEncode(homeModel.configModel.searchUrl);
         for (int i = 0; i < homeModel.bannerList.length; i++) {
