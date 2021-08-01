@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_trip/dao/home_dao.dart';
 import 'package:flutter_trip/model/common_model.dart';
+import 'package:flutter_trip/model/config_model.dart';
 import 'package:flutter_trip/model/grid_nav_model.dart';
 import 'package:flutter_trip/model/home_model.dart';
 import 'package:flutter_trip/model/sale_box_model.dart';
@@ -18,6 +19,7 @@ const double APPBAR_SCROLL_OFFSET = 100;
 const SEARCH_BAR_DEFAULT_TEXT = "网红打卡经典 酒店 美食";
 
 class HomePage extends StatefulWidget {
+  static ConfigModel configModel;
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -165,6 +167,7 @@ class _HomePageState extends State<HomePage> {
       HomeModel homeModel = await HomeDao.fetch();
       List<String> _list = [];
       setState(() {
+        HomePage.configModel = homeModel.configModel;
         showInfo = jsonEncode(homeModel.configModel.searchUrl);
         for (int i = 0; i < homeModel.bannerList.length; i++) {
           CommonModel commonModel = homeModel.bannerList[i];

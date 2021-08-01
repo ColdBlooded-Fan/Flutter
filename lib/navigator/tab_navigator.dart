@@ -20,7 +20,11 @@ class _TabNavigatorState extends State<TabNavigator> {
     return Scaffold(
       body: PageView(
         controller: _controller,
-        children: [HomePage(),  SearchPage(),TravelPage(), MyPage()],
+        physics: NeverScrollableScrollPhysics(),
+        onPageChanged: _onTabClick,
+        children: [HomePage(),  SearchPage(
+          hideLeft: true,
+        ),TravelPage(), MyPage()],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
