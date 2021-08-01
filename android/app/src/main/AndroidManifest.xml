@@ -1,7 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutter_trip">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="flutter_trip"
+        android:label="Flutter之旅"
+       android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
