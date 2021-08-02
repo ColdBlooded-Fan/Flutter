@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_trip/dao/travel_tab_dao.dart';
 import 'package:flutter_trip/model/travel_model.dart';
 import 'package:flutter_trip/model/travel_tab_model.dart';
+import 'package:flutter_trip/pages/travel_tab_page.dart';
 
 class TravelPage extends StatefulWidget {
   @override
@@ -57,11 +58,15 @@ class _TravelPageState extends State<TravelPage> with TickerProviderStateMixin {
                       insets: EdgeInsets.only(bottom: 10)),
                 ),
               ),
-              Flexible(child: TabBarView(
-                  controller: _tabController,
-                  children: _tabs.map((TravelTab tab) {
-                    return Text(tab.groupChannelCode);
-                  }).toList()))
+              Flexible(
+                  child: TabBarView(
+                      controller: _tabController,
+                      children: _tabs.map((TravelTab tab) {
+                        return TravelTabPage(
+                            travelUrl: _travelTabModel.url,
+                            groupChannelCode: tab.groupChannelCode,
+                            params: _travelTabModel.params);
+                      }).toList()))
             ],
           )),
     );
